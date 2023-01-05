@@ -1,4 +1,4 @@
-import * as React from 'react';
+// import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,10 +12,18 @@ import MenuItem from '@mui/material/MenuItem';
 import { Divider } from '@mui/material';
 import { Button, MenuList } from '@mui/material';
 import Modal from '@mui/material/Modal';
-import GoogleLogin from 'react-google-login';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
+import jwt_decode from "jwt-decode";
+import { googleLogout } from "@react-oauth/google";
+
+import React, { useState } from "react";
+
 const responseGoogle = (response: any) => {
   console.log(response);
 }
+
+
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -28,13 +36,23 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  
 };
 
 function Navbar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
+
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
+  };
+
+  const logoutHandler = () => {
+
+    googleLogout();
+
+    console.log("Logout Succesful");
+
   };
 
   const handleCloseUserMenu = () => {
@@ -44,19 +62,43 @@ function Navbar() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 //testing for github
+
+const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+function handleProfileClick() {
+  if (isLoggedIn) {
+    // redirect to user profile page
+    window.location.href = "/Profile";
+  } else {
+    // redirect to login page
+    window.location.href = "/login";
+  }
+}
+
   return (
+    
     <AppBar position="static">
+      
+      
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+          
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            
           </Box>
+          
 
           <Box sx={{ flexGrow: 0 }}>
+      
+
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar />
+                <Avatar src="https://lh3.googleusercontent.com/a/AEdFTp6g12SaYAjEIJFwe0No3L4Sxgbxv-XyOgcUcsesjw=s96-c"/>
               </IconButton>
+             
             </Tooltip>
+            
+            
             <Menu
               sx={{ mt: '45px' }}
               id="menu-appbar"
@@ -73,11 +115,16 @@ function Navbar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+              
               <MenuItem onClick={handleCloseUserMenu}>
               <MenuList>
-              <Typography><Button>My Profile</Button></Typography>
+              {/* <Button onClick={handleOpen}>My Profile</Button> */}
+              {/* <a href="#" onClick={handleProfileClick}>My Profile</a> */}
+              <a href="aboutus.html">My Profile</a>
+            
               <Typography><Button>Wishlist</Button></Typography>
               <Typography><Button>Cart</Button><Divider /></Typography>
+              
              
               <Button onClick={handleOpen}>Login</Button>
               <Modal
@@ -87,17 +134,30 @@ function Navbar() {
               aria-describedby="modal-modal-description"
               >
               <Box sx={style}>
-             
+            
+              
+
+              <GoogleOAuthProvider clientId="225817550374-bcd47pau1t740ghketrui4pdqgm9eha3.apps.googleusercontent.com">
               <GoogleLogin
-              clientId="658977310896-knrl3gka66fldh83dao2rhgbblmd4un9.apps.googleusercontent.com"
-              buttonText="LOGIN WITH GOOGLE"
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              />
+  onSuccess={credentialResponse => {
+    console.log(credentialResponse.credential);
+    
+if (credentialResponse.credential !== undefined) 
+{ 
+  var decoded = jwt_decode(credentialResponse.credential); 
+  console.log(decoded); 
+}
+
+
+  }}
+  onError={() => {
+    console.log('Login Failed');
+  }}/>
+                </GoogleOAuthProvider>
               </Box>
               </Modal>
-              <Typography><Button>Logout</Button></Typography>
+              
+              <Typography><Button onClick={logoutHandler}>Logout</Button></Typography>
               </MenuList>
               </MenuItem>
             </Menu>
