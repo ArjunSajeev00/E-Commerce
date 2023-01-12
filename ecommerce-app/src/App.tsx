@@ -1,16 +1,22 @@
+import Home from "./pages/Home";
+import Template from "./components/Template";
+import PageRouter from "./Router/PageRouter";
+import { BrowserRouter as Router } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
-import Home from "./pages/home";
 
-
-const App = () =>{
+const App = () => {
   return (
     <>
-      <Navbar/>   
-      <Home/>   
-         
+
+
+      
+      <Template />
+
+
+
+
     </>
   );
 }
-  
+
 export default App;

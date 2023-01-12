@@ -1,4 +1,4 @@
-// import * as React from 'react';
+import React, { useState } from "react";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -16,8 +16,11 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleLogin } from '@react-oauth/google';
 import jwt_decode from "jwt-decode";
 import { googleLogout } from "@react-oauth/google";
+import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { Router } from "@mui/icons-material";
 
-import React, { useState } from "react";
+
 
 const responseGoogle = (response: any) => {
   console.log(response);
@@ -36,7 +39,7 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-  
+
 };
 
 function Navbar() {
@@ -50,6 +53,8 @@ function Navbar() {
   const logoutHandler = () => {
 
     googleLogout();
+    setIsLoggedIn(false)
+    alert("Logout Succesful")
 
     console.log("Logout Succesful");
 
@@ -59,46 +64,62 @@ function Navbar() {
     setAnchorElUser(null);
   };
   const [open, setOpen] = React.useState(false);
+  const [profileImage,setProfileImage]=React.useState('');
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-//testing for github
 
-const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-function handleProfileClick() {
-  if (isLoggedIn) {
-    // redirect to user profile page
-    window.location.href = "/Profile";
-  } else {
-    // redirect to login page
-    window.location.href = "/login";
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  function handleProfileClick() {
+    if (isLoggedIn) {
+      // redirect to user profile page
+      window.location.href = "/Profile";
+    } else {
+      // redirect to login page
+      window.location.href = "/login";
+    }
   }
-}
+  
+  const navigate = useNavigate();
+  const handleProfile = () => {
+
+    if (isLoggedIn) {
+
+    navigate('/Profile')
+    }
+    else{
+      handleOpen()
+    }
+  }
+  
+
+
 
   return (
-    
+
     <AppBar position="static">
-      
-      
+
+
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          
+
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            
+
           </Box>
-          
+
 
           <Box sx={{ flexGrow: 0 }}>
-      
+
 
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar src="https://lh3.googleusercontent.com/a/AEdFTp6g12SaYAjEIJFwe0No3L4Sxgbxv-XyOgcUcsesjw=s96-c"/>
+                <Avatar src={profileImage} />
               </IconButton>
-             
+
             </Tooltip>
-            
-            
+
+
             <Menu
               sx={{ mt: '45px' }}
               id="menu-appbar"
@@ -115,50 +136,52 @@ function handleProfileClick() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              
+
               <MenuItem onClick={handleCloseUserMenu}>
-              <MenuList>
-              {/* <Button onClick={handleOpen}>My Profile</Button> */}
-              {/* <a href="#" onClick={handleProfileClick}>My Profile</a> */}
-              <a href="aboutus.html">My Profile</a>
-            
-              <Typography><Button>Wishlist</Button></Typography>
-              <Typography><Button>Cart</Button><Divider /></Typography>
-              
-             
-              <Button onClick={handleOpen}>Login</Button>
-              <Modal
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
-              >
-              <Box sx={style}>
-            
-              
+                <MenuList>
+                  <Button onClick={handleProfile} className="button" name="MY profile">MYprofile</Button>
+                  {/* <Link to = "/Profile"><Button onClick={handleProfile} className="button" name="MY profile">MYprofile</Button> </Link> */}
 
-              <GoogleOAuthProvider clientId="225817550374-bcd47pau1t740ghketrui4pdqgm9eha3.apps.googleusercontent.com">
-              <GoogleLogin
-  onSuccess={credentialResponse => {
-    console.log(credentialResponse.credential);
-    
-if (credentialResponse.credential !== undefined) 
-{ 
-  var decoded = jwt_decode(credentialResponse.credential); 
-  console.log(decoded); 
-}
+                  <Typography><Button>Wishlist</Button></Typography>
+                  <Typography><Button>Cart</Button><Divider /></Typography>
 
 
-  }}
-  onError={() => {
-    console.log('Login Failed');
-  }}/>
-                </GoogleOAuthProvider>
-              </Box>
-              </Modal>
-              
-              <Typography><Button onClick={logoutHandler}>Logout</Button></Typography>
-              </MenuList>
+                  <Button onClick={handleOpen}>Login</Button>
+                  <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                  >
+                    <Box sx={style}>
+
+
+
+                      <GoogleOAuthProvider clientId="225817550374-bcd47pau1t740ghketrui4pdqgm9eha3.apps.googleusercontent.com">
+                        <GoogleLogin
+                          onSuccess={credentialResponse => {
+                            console.log(credentialResponse.credential);
+
+                            if (credentialResponse.credential !== undefined) {
+                              var decoded:object = jwt_decode(credentialResponse.credential);
+                              console.log(decoded);
+                              var a=Object.values(decoded);
+                              setProfileImage(a[8]);
+
+
+                            }
+
+
+                          }}
+                          onError={() => {
+                            console.log('Login Failed');
+                          }} />
+                      </GoogleOAuthProvider>
+                    </Box>
+                  </Modal>
+
+                  <Typography><Button onClick={logoutHandler}>Logout</Button></Typography>
+                </MenuList>
               </MenuItem>
             </Menu>
           </Box>
